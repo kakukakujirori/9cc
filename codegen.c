@@ -16,8 +16,30 @@ Node *new_node_num(int val) {
 	return node;
 }
 
+Node *program(void) {
+	int i = 0;
+	while (!at_eof()) {
+		code[i++] = stmt();
+	}
+	code[i] = NULL;
+}
+
+Node *stmt(void) {
+	Node *node = expr();
+	expect(";");
+	return node;
+}
+
 Node *expr(void) {
-	return equality();
+	return assign();
+}
+
+Node *assign(void) {
+	Node *node = equality();
+	if (consume("=")) {
+		node = new_node(ND_ASSIGN, node, assign());
+	}
+	return node;
 }
 
 Node *equality(void) {
@@ -96,6 +118,13 @@ Node *primary(void) {
 		expect(")");
 		return node;
 	} 
+	char c = consume_ident();
+	if (c != 0) {
+		Node *node = calloc(1, sizeof(Node));
+		node->kind = ND_LVAR;
+		node->offset = (c - 'a' + 1) * 8;
+		return node;
+	}
 	return new_node_num(expect_number());
 }
 

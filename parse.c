@@ -35,6 +35,17 @@ bool consume(char *op) {
 	return true;
 }
 
+// If the next token is a variable, this returns true and advances
+// the token one ahead. Otherwise it returns false
+char consume_ident(void) {
+	if (token->kind != TK_IDENT) {
+		return 0;
+	}
+	char c = *(token->str);
+	token = token->next;
+	return c;
+}
+
 // If the next token is the expected one, this function advances the token one ahead.
 // Otherwise it reports an error. 
 void expect(char *op) {
@@ -103,6 +114,13 @@ Token *tokenize(void) {
 			continue;
 		}
 
+		// variables
+		if ('a' <= *p && *p <= 'z') {
+			cur = new_token(TK_IDENT, cur, p++, 1);
+			continue;
+		}
+
+		// numbers
 		if (isdigit(*p)) {
 			cur = new_token(TK_NUM, cur, p, 0);
 			char *q = p;
