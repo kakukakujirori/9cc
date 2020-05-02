@@ -16,7 +16,7 @@ Node *new_node_num(int val) {
 	return node;
 }
 
-Node *program(void) {
+void *program(void) {
 	int i = 0;
 	while (!at_eof()) {
 		code[i++] = stmt();

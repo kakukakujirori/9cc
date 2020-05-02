@@ -68,7 +68,7 @@ Token *tokenize(void);
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
-Node *program(void);
+void *program(void);
 Node *stmt(void);
 Node *expr(void);
 Node *assign(void);

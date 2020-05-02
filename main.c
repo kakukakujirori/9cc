@@ -6,21 +6,32 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	// tokenize and parse
+	// tokenize and parse, and its output is recorded in code
 	user_input = argv[1];
 	token = tokenize();
-	Node *node = expr();
+	program();
 
 	// output the first half of the assembly
 	printf(".intel_syntax noprefix\n");
 	printf(".global main\n");
 	printf("main:\n");
 
-	// generate code by descending the abstract syntax tree
-	gen(node);
+	// prologue: allocate the area for 26 variables
+	printf("    push rbp\n");
+	printf("    mov rbp, rsp\n");
+	printf("    sub rsp, 208\n");
 
-	// load the value in the top of the stack into rax
-	printf("    pop rax\n");
+	// generate code by descending the abstract syntax tree
+	for (int i = 0; code[i]; i++) {
+		gen(code[i]);
+
+		// pop the resulting value from the stack
+		printf("    pop rax\n");
+	}
+
+	// epilogue
+	printf("    mov rsp, rbp\n");
+	printf("    pop rbp\n");
 	printf("    ret\n");
 	return 0;
 }

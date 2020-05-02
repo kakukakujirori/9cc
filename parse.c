@@ -100,6 +100,12 @@ Token *tokenize(void) {
 			continue;
 		}
 
+		// semicolon
+		if (startswith(p, ";")) {
+			cur = new_token(TK_RESERVED, cur, p++, 1);
+			continue;
+		}
+
 		// multi letter punctuator
 		if (startswith(p, "==") || startswith(p, "!=") ||
 		    startswith(p, "<=") || startswith(p, ">=")) {
@@ -109,7 +115,7 @@ Token *tokenize(void) {
 		}
 
 		// single letter punctuator
-		if (strchr("+-*/()<>", *p)) {
+		if (strchr("+-*/()<>=", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}
