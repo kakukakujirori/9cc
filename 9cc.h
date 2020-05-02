@@ -78,6 +78,7 @@ Node *add(void);
 Node *mul(void);
 Node *unary(void);
 Node *primary(void);
+void gen_lval(Node *node);
 void gen(Node *node);
 
 ////////////////////////////////////////////////////////////////
