@@ -135,7 +135,6 @@ Node *primary(void) {
 			lvar->offset = locals->offset + 8;
 			node->offset = lvar->offset;
 			locals = lvar;
-			//node->offset = (*(tok->str) - 'a' + 1) * 8;
 		}
 
 		

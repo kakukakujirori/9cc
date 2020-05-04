@@ -16,6 +16,8 @@ assert() {
 	fi
 }
 
+assert 42 "foo=20; bar=22; foo+bar;"
+assert 6 "one = 1; two = 2; three = 3; one * two * three;"
 assert 15 "a=1; a+14;"
 assert 1 "a = 1; a  + 1 - + a;"
 assert 34 "a=3; b = 7; a * 2 + 4 * b;"

@@ -131,8 +131,15 @@ Token *tokenize(void) {
 
 		// variables
 		if ('a' <= *p && *p <= 'z') {
-
-			cur = new_token(TK_IDENT, cur, p++, 1);
+			int len = 0;
+			do {
+				len++;
+			} while ((len < 256) && 
+				(isdigit(*(p+len)) || strchr("_", *(p+len)) 
+				|| ('a' <= *(p+len) && *(p+len) <= 'z')));
+			if (len >= 256) error_at(cur->str+1, "Too long variable name");
+			cur = new_token(TK_IDENT, cur, p, len);
+			p += len;
 			continue;
 		}
 
