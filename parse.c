@@ -37,11 +37,11 @@ bool consume(char *op) {
 
 // If the next token is a variable, this returns true and advances
 // the token one ahead. Otherwise it returns false
-char consume_ident(void) {
+Token *consume_ident(void) {
 	if (token->kind != TK_IDENT) {
-		return 0;
+		return NULL;
 	}
-	char c = *(token->str);
+	Token *c = token;
 	token = token->next;
 	return c;
 }
@@ -74,6 +74,15 @@ bool at_eof(void) {
 
 bool startswith(char *p, char *q) {
 	return memcmp(p, q, strlen(q)) == 0;
+}
+
+LVar *find_lvar(Token *tok) {
+	for (LVar *var = locals; var; var = var->next) {
+		if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+			return var;
+		}
+	}
+	return NULL;
 }
 
 // Create a new token and configure it next to cur.
@@ -122,6 +131,7 @@ Token *tokenize(void) {
 
 		// variables
 		if ('a' <= *p && *p <= 'z') {
+
 			cur = new_token(TK_IDENT, cur, p++, 1);
 			continue;
 		}

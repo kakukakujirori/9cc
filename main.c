@@ -1,10 +1,18 @@
 #include "9cc.h"
+#include <stdlib.h>
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
 		error("the number of input is incorrect");
 		return 1;
 	}
+
+	// initialize local variable container
+	locals = (LVar*)calloc(1, sizeof(LVar));
+	locals->next = NULL;
+	locals->name = NULL;
+	locals->len = 0;
+	locals->offset = 0;
 
 	// tokenize and parse, and its output is recorded in code
 	user_input = argv[1];

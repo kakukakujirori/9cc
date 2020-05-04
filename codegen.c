@@ -118,11 +118,27 @@ Node *primary(void) {
 		expect(")");
 		return node;
 	} 
-	char c = consume_ident();
-	if (c != 0) {
+	Token *tok = consume_ident();
+	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
 		node->kind = ND_LVAR;
-		node->offset = (c - 'a' + 1) * 8;
+
+		// changed part
+		LVar *lvar = find_lvar(tok);
+		if (lvar) {
+			node->offset = lvar->offset;
+		} else {
+			lvar = calloc(1, sizeof(LVar));
+			lvar->next = locals;
+			lvar->name = tok->str;
+			lvar->len = tok->len;
+			lvar->offset = locals->offset + 8;
+			node->offset = lvar->offset;
+			locals = lvar;
+			//node->offset = (*(tok->str) - 'a' + 1) * 8;
+		}
+
+		
 		return node;
 	}
 	return new_node_num(expect_number());
