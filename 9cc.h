@@ -73,6 +73,7 @@ int expect_number(void);
 bool at_eof(void);
 bool startswith(char *p, char *q);
 LVar *find_lvar(Token *tok);
+int is_alnum(char c);
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 Token *tokenize(void);
 

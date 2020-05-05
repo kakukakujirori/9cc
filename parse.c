@@ -85,6 +85,11 @@ LVar *find_lvar(Token *tok) {
 	return NULL;
 }
 
+int is_alnum(char c) {
+	return ('a' <= c  && c <= 'z') || ('A' <= c && c <= 'Z') ||
+		   ('0' <= c && c <= '9') || (c == '_');
+}
+
 // Create a new token and configure it next to cur.
 Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
 	Token *tok = calloc(1, sizeof(Token));
@@ -134,9 +139,7 @@ Token *tokenize(void) {
 			int len = 0;
 			do {
 				len++;
-			} while ((len < 256) && 
-				(isdigit(*(p+len)) || strchr("_", *(p+len)) 
-				|| ('a' <= *(p+len) && *(p+len) <= 'z')));
+			} while ((len < 256) && is_alnum(*(p + len)));
 			if (len >= 256) error_at(cur->str+1, "Too long variable name");
 			cur = new_token(TK_IDENT, cur, p, len);
 			p += len;
