@@ -15,6 +15,10 @@ assert() {
 		exit 1
 	fi
 }
+assert 24 "return 24;"
+assert 18 "num = 3; return num * num * 2;"
+assert 32 "w = 6; h = 2; p = 2; return (w + p) * (h + p);"
+assert 32 "w=6;h=2;w=w+2;h=h+2;return w*h;"
 
 assert 42 "foo=20; bar=22; foo+bar;"
 assert 6 "one = 1; two = 2; three = 3; one * two * three;"

@@ -12,6 +12,7 @@
 typedef enum {
 	TK_RESERVED, // symbol
 	TK_IDENT,    // identifier
+	TK_RETURN,   // return symbol
 	TK_NUM,      // number token
 	TK_EOF,      // end of input token
 } TokenKind;
@@ -40,6 +41,7 @@ typedef enum {
 	ND_LE,     // <=
 	ND_LVAR,   // local variable
 	ND_NUM,    // integer
+	ND_RETURN, // return symbol
 } NodeKind;
 
 typedef struct Node Node;
@@ -67,6 +69,7 @@ struct LVar {
 void error(char *fmt, ...) ;
 void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
+bool consume_kind(TokenKind tk);
 Token *consume_ident(void);
 void expect(char *op);
 int expect_number(void);

@@ -35,6 +35,12 @@ bool consume(char *op) {
 	return true;
 }
 
+bool consume_kind(TokenKind tk) {
+	if (token->kind != tk) return false;
+	token = token->next;
+	return true;
+}
+
 // If the next token is a variable, this returns true and advances
 // the token one ahead. Otherwise it returns false
 Token *consume_ident(void) {
@@ -114,9 +120,10 @@ Token *tokenize(void) {
 			continue;
 		}
 
-		// semicolon
-		if (startswith(p, ";")) {
-			cur = new_token(TK_RESERVED, cur, p++, 1);
+		// return symbol
+		if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
+			cur = new_token(TK_RETURN, cur, p, 6);
+			p += 6;
 			continue;
 		}
 
@@ -129,7 +136,7 @@ Token *tokenize(void) {
 		}
 
 		// single letter punctuator
-		if (strchr("+-*/()<>=", *p)) {
+		if (strchr("+-*/()<>=;", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}

@@ -25,7 +25,12 @@ void *program(void) {
 }
 
 Node *stmt(void) {
-	Node *node = expr();
+	Node *node;
+	if (consume_kind(TK_RETURN)) {
+		node = new_node(ND_RETURN, expr(), NULL);
+	} else {
+		node = expr();
+	}
 	expect(";");
 	return node;
 }
@@ -123,7 +128,7 @@ Node *primary(void) {
 		Node *node = calloc(1, sizeof(Node));
 		node->kind = ND_LVAR;
 
-		// changed part
+		// determine the offset of the variable
 		LVar *lvar = find_lvar(tok);
 		if (lvar) {
 			node->offset = lvar->offset;
@@ -154,6 +159,13 @@ void gen_lval(Node *node) {
 
 void gen(Node *node) {
 	switch (node->kind) {
+		case ND_RETURN:
+			gen(node->lhs);
+			printf("    pop rax\n");
+			printf("    mov rsp, rbp\n");
+			printf("    pop rbp\n");
+			printf("    ret\n");
+			return;
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);
 		    return;
