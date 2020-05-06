@@ -28,11 +28,21 @@ Node *stmt(void) {
 	Node *node;
 	if (consume_kind(TK_RETURN)) {
 		node = new_node(ND_RETURN, expr(), NULL);
+		expect(";");
+		return node;
+	} else if (consume_kind(TK_IF)) {
+		/* member variables of Node seems unsufficient to express "else" */
+		expect("(");
+		node = new_node(ND_IF, expr(), NULL);
+		expect(")");
+		node->rhs = stmt();
+		return node;
 	} else {
 		node = expr();
+		expect(";");
+		return node;
 	}
-	expect(";");
-	return node;
+	
 }
 
 Node *expr(void) {
@@ -165,6 +175,15 @@ void gen(Node *node) {
 			printf("    mov rsp, rbp\n");
 			printf("    pop rbp\n");
 			printf("    ret\n");
+			return;
+		case ND_IF:
+			gen(node->lhs);
+			printf("    pop rax\n");
+			printf("    cmp rax, 0\n");
+			printf("    je  .L.end.%d\n", go_to_number);
+			gen(node->rhs);
+			printf(".L.end.%d:\n", go_to_number);
+			go_to_number++;
 			return;
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);

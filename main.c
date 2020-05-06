@@ -14,6 +14,9 @@ int main(int argc, char** argv) {
 	locals->len = 0;
 	locals->offset = 0;
 
+	// initialize go_to_number
+	go_to_number = 0;
+
 	// tokenize and parse, and its output is recorded in code
 	user_input = argv[1];
 	token = tokenize();

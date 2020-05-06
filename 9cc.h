@@ -13,6 +13,9 @@ typedef enum {
 	TK_RESERVED, // symbol
 	TK_IDENT,    // identifier
 	TK_RETURN,   // return symbol
+	TK_IF,       // if symbol
+	TK_ELSE,     // else symbol
+	TK_WHILE,    // while symbol
 	TK_NUM,      // number token
 	TK_EOF,      // end of input token
 } TokenKind;
@@ -42,6 +45,9 @@ typedef enum {
 	ND_LVAR,   // local variable
 	ND_NUM,    // integer
 	ND_RETURN, // return symbol
+	ND_IF,     // if symbol
+	ND_ELSE,   // else symbol
+	ND_WHILE,  // while symbol
 } NodeKind;
 
 typedef struct Node Node;
@@ -102,3 +108,4 @@ Token *token; // current token
 char *user_input; // input program
 Node *code[100];
 LVar *locals;
+int go_to_number;

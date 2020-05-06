@@ -15,7 +15,13 @@ assert() {
 		exit 1
 	fi
 }
+
+assert 12 "if (2 > 1) return 12;"
+assert 35 "num = 6; if (num > 5) num = 8; return num * 4 + 3;"
+assert 27 "num = 6; if (num < 5) num = 8; return num * 4 + 3;"
+
 assert 24 "return 24;"
+assert 24 "returno = 24; return returno;"
 assert 18 "num = 3; return num * num * 2;"
 assert 32 "w = 6; h = 2; p = 2; return (w + p) * (h + p);"
 assert 32 "w=6;h=2;w=w+2;h=h+2;return w*h;"

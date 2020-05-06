@@ -127,6 +127,13 @@ Token *tokenize(void) {
 			continue;
 		}
 
+		// if symbol
+		if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2])) {
+			cur = new_token(TK_IF, cur, p, 2);
+			p += 2;
+			continue;
+		}
+
 		// multi letter punctuator
 		if (startswith(p, "==") || startswith(p, "!=") ||
 		    startswith(p, "<=") || startswith(p, ">=")) {
