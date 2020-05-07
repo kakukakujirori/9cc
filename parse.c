@@ -134,6 +134,13 @@ Token *tokenize(void) {
 			continue;
 		}
 
+		// else symbol
+		if (strncmp(p, "else", 4) == 0 && !is_alnum(p[4])) {
+			cur = new_token(TK_ELSE, cur, p, 4);
+			p += 4;
+			continue;
+		}
+
 		// multi letter punctuator
 		if (startswith(p, "==") || startswith(p, "!=") ||
 		    startswith(p, "<=") || startswith(p, ">=")) {

@@ -16,6 +16,8 @@ assert() {
 	fi
 }
 
+assert 24 "if (2 < 1) return 12; else return 24;"
+assert 64 "num = 4; if (num == 4) num = 8; return num * num;"
 assert 12 "if (2 > 1) return 12;"
 assert 35 "num = 6; if (num > 5) num = 8; return num * 4 + 3;"
 assert 27 "num = 6; if (num < 5) num = 8; return num * 4 + 3;"

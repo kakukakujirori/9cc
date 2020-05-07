@@ -6,6 +6,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	node->kind = kind;
 	node->lhs = lhs;
 	node->rhs = rhs;
+	node->els = NULL;
 	return node;
 }
 
@@ -13,6 +14,7 @@ Node *new_node_num(int val) {
 	Node *node = calloc(1, sizeof(Node));
 	node->kind = ND_NUM;
 	node->val = val;
+	node->els = NULL;
 	return node;
 }
 
@@ -31,11 +33,13 @@ Node *stmt(void) {
 		expect(";");
 		return node;
 	} else if (consume_kind(TK_IF)) {
-		/* member variables of Node seems unsufficient to express "else" */
 		expect("(");
 		node = new_node(ND_IF, expr(), NULL);
 		expect(")");
 		node->rhs = stmt();
+		if (consume_kind(TK_ELSE)) {
+			node->els = stmt();
+		}
 		return node;
 	} else {
 		node = expr();
@@ -151,8 +155,6 @@ Node *primary(void) {
 			node->offset = lvar->offset;
 			locals = lvar;
 		}
-
-		
 		return node;
 	}
 	return new_node_num(expect_number());
@@ -176,15 +178,24 @@ void gen(Node *node) {
 			printf("    pop rbp\n");
 			printf("    ret\n");
 			return;
-		case ND_IF:
+		case ND_IF: {
+			int current_num = go_to_number++;
 			gen(node->lhs);
 			printf("    pop rax\n");
 			printf("    cmp rax, 0\n");
-			printf("    je  .L.end.%d\n", go_to_number);
-			gen(node->rhs);
-			printf(".L.end.%d:\n", go_to_number);
-			go_to_number++;
+			if (node->els) {
+				printf("    je  .L.else.%d\n", current_num);
+				gen(node->rhs);
+				printf("    jmp .L.end.%d\n", current_num);
+				printf(".L.else.%d:\n", current_num);
+				gen(node->els);
+			} else {
+				printf("    je  .L.end.%d\n", current_num);
+				gen(node->rhs);
+			}
+			printf(".L.end.%d:\n", current_num);
 			return;
+		}
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);
 		    return;
