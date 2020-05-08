@@ -16,6 +16,8 @@ assert() {
 	fi
 }
 
+
+assert 10 "val=0; while (val < 5) val = val + 1; return val * 2;"
 assert 24 "if (2 < 1) return 12; else return 24;"
 assert 64 "num = 4; if (num == 4) num = 8; return num * num;"
 assert 12 "if (2 > 1) return 12;"

@@ -16,6 +16,7 @@ typedef enum {
 	TK_IF,       // if symbol
 	TK_ELSE,     // else symbol
 	TK_WHILE,    // while symbol
+	TK_FOR,      // for symbol
 	TK_NUM,      // number token
 	TK_EOF,      // end of input token
 } TokenKind;
@@ -48,6 +49,7 @@ typedef enum {
 	ND_IF,     // if symbol
 	ND_ELSE,   // else symbol
 	ND_WHILE,  // while symbol
+	ND_FOR,    // for symbol
 } NodeKind;
 
 typedef struct Node Node;

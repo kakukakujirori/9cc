@@ -41,6 +41,12 @@ Node *stmt(void) {
 			node->els = stmt();
 		}
 		return node;
+	} else if (consume_kind(TK_WHILE)) {
+		expect("(");
+		node = new_node(ND_WHILE, expr(), NULL);
+		expect(")");
+		node->rhs = stmt();
+		return node;
 	} else {
 		node = expr();
 		expect(";");
@@ -195,6 +201,17 @@ void gen(Node *node) {
 			}
 			printf(".L.end.%d:\n", current_num);
 			return;
+		}
+		case ND_WHILE: {
+			int current_num = go_to_number++;
+			printf(".L.begin.%d:", current_num);
+			gen(node->lhs);
+			printf("    pop rax\n");
+			printf("    cmp rax, 0\n");
+			printf("    je  .L.end.%d\n", current_num);
+			gen(node->rhs);
+			printf("    jmp .L.begin.%d\n", current_num);
+			printf(".L.end.%d:\n", current_num);
 		}
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);
