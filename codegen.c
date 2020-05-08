@@ -6,7 +6,11 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	node->kind = kind;
 	node->lhs = lhs;
 	node->rhs = rhs;
+	node->cond = NULL;
+	node->then = NULL;
 	node->els = NULL;
+	node->init = NULL;
+	node->inc = NULL;
 	return node;
 }
 
@@ -34,25 +38,43 @@ Node *stmt(void) {
 		return node;
 	} else if (consume_kind(TK_IF)) {
 		expect("(");
-		node = new_node(ND_IF, expr(), NULL);
+		node = new_node(ND_IF, NULL, NULL);
+		node->cond = expr();
 		expect(")");
-		node->rhs = stmt();
+		node->then = stmt();
 		if (consume_kind(TK_ELSE)) {
 			node->els = stmt();
 		}
 		return node;
 	} else if (consume_kind(TK_WHILE)) {
 		expect("(");
-		node = new_node(ND_WHILE, expr(), NULL);
+		node = new_node(ND_WHILE, NULL, NULL);
+		node->cond = expr();
 		expect(")");
-		node->rhs = stmt();
+		node->then = stmt();
+		return node;
+	} else if (consume_kind(TK_FOR)) {
+		expect("(");
+		node = new_node(ND_FOR, NULL, NULL);
+		if (!consume(";")) {
+			node->init = expr();
+			expect(";");
+		}
+		if (!consume(";")) {
+			node->cond = expr();
+			expect(";");
+		}
+		if (!consume(")")) {
+			node->inc = expr();
+			expect(")");
+		}
+		node->then = stmt();
 		return node;
 	} else {
 		node = expr();
 		expect(";");
 		return node;
 	}
-	
 }
 
 Node *expr(void) {
@@ -186,18 +208,18 @@ void gen(Node *node) {
 			return;
 		case ND_IF: {
 			int current_num = go_to_number++;
-			gen(node->lhs);
+			gen(node->cond);
 			printf("    pop rax\n");
 			printf("    cmp rax, 0\n");
 			if (node->els) {
 				printf("    je  .L.else.%d\n", current_num);
-				gen(node->rhs);
+				gen(node->then);
 				printf("    jmp .L.end.%d\n", current_num);
 				printf(".L.else.%d:\n", current_num);
 				gen(node->els);
 			} else {
 				printf("    je  .L.end.%d\n", current_num);
-				gen(node->rhs);
+				gen(node->then);
 			}
 			printf(".L.end.%d:\n", current_num);
 			return;
@@ -205,13 +227,28 @@ void gen(Node *node) {
 		case ND_WHILE: {
 			int current_num = go_to_number++;
 			printf(".L.begin.%d:", current_num);
-			gen(node->lhs);
+			gen(node->cond);
 			printf("    pop rax\n");
 			printf("    cmp rax, 0\n");
 			printf("    je  .L.end.%d\n", current_num);
-			gen(node->rhs);
+			gen(node->then);
 			printf("    jmp .L.begin.%d\n", current_num);
 			printf(".L.end.%d:\n", current_num);
+			return;
+		}
+		case ND_FOR: {
+			int current_num = go_to_number++;
+			if (node->init) gen(node->init);
+			printf(".L.begin.%d:\n", current_num);
+			if (node->cond) gen(node->cond);
+			printf("    pop rax\n");
+			printf("    cmp rax, 0\n");
+			printf("    je  .L.end.%d\n", current_num);
+			gen(node->then);
+			if (node->inc) gen(node->inc);
+			printf("    jmp .L.begin.%d\n", current_num);
+			printf(".L.end.%d:\n", current_num);
+			return;
 		}
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);

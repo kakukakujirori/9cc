@@ -148,6 +148,13 @@ Token *tokenize(void) {
 			continue;
 		}
 
+		// for symbol
+		if (strncmp(p, "for", 3) == 0 && !is_alnum(p[3])) {
+			cur = new_token(TK_FOR, cur, p, 3);
+			p += 3;
+			continue;
+		}
+
 		// multi letter punctuator
 		if (startswith(p, "==") || startswith(p, "!=") ||
 		    startswith(p, "<=") || startswith(p, ">=")) {

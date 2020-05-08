@@ -58,7 +58,11 @@ struct Node {
 	NodeKind kind; // node type
 	Node *lhs;     // left hand side
 	Node *rhs;     // right hand side
-	Node *els;     // else clause (used only when if ... else ... sentence)
+	Node *cond;    // condition clause (used for if/while/for sentence)
+	Node *then;    // resulting process (used only for if/while/for sentence)
+	Node *els;     // else clause (used only for if ... else ... sentence)
+	Node *init;    // initialization clause (used only for "for" sentence)
+	Node *inc;     // increment clause (used only for "for" sentence)
 	int val;       // used only when kind == ND_NUM
 	int offset;    // used only when kind == ND_LVAR
 };
