@@ -50,6 +50,7 @@ typedef enum {
 	ND_ELSE,   // else symbol
 	ND_WHILE,  // while symbol
 	ND_FOR,    // for symbol
+	ND_BLOCK,  // block symbol
 } NodeKind;
 
 typedef struct Node Node;
@@ -63,6 +64,8 @@ struct Node {
 	Node *els;     // else clause (used only for if ... else ... sentence)
 	Node *init;    // initialization clause (used only for "for" sentence)
 	Node *inc;     // increment clause (used only for "for" sentence)
+	Node *next;    // next stmt()
+	Node *body;    // Block or statement expression
 	int val;       // used only when kind == ND_NUM
 	int offset;    // used only when kind == ND_LVAR
 };

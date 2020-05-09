@@ -70,6 +70,17 @@ Node *stmt(void) {
 		}
 		node->then = stmt();
 		return node;
+	} else if (consume("{")) {
+		/* reference: chibicc/codegen.c/l.1266-1280 */
+		Node head = {};
+		Node *cur = &head;
+		while (!consume("}")) {
+			cur->next = stmt();
+			cur = cur->next;
+		}
+		Node *node = new_node(ND_BLOCK, NULL, NULL);
+		node->body = head.next;
+		return node;
 	} else {
 		node = expr();
 		expect(";");
@@ -250,6 +261,9 @@ void gen(Node *node) {
 			printf(".L.end.%d:\n", current_num);
 			return;
 		}
+		case ND_BLOCK:
+			for (Node *n = node->body; n; n = n->next) gen(n);
+			return;
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);
 		    return;

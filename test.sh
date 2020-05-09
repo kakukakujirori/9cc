@@ -16,6 +16,8 @@ assert() {
 	fi
 }
 
+assert 14 "n = 0; while (n < 10) {n = n + 1; n = n * 2;} n;"
+assert 1 "val = 1; for (i = 0; i < 10; i = i + 1) {val = val + i; val = val - i;} return val;"
 assert 10 "val = 0; for (i = 0; i < 5; i = i + 1) val = val + i; return val;"
 assert 8 "val = 1; num = 1; for (;num < 5; num = num + val) val = val * num; val;"
 assert 10 "val=0; while (val < 5) val = val + 1; return val * 2;"
