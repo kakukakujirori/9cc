@@ -177,6 +177,12 @@ Node *primary(void) {
 		return node;
 	} 
 	Token *tok = consume_ident();
+	if (tok && consume("(")) {
+		Node *node = new_node(ND_FUNC, NULL, NULL);
+		node->funcname = strndup(tok->str, tok->len);
+		expect(")");
+		return node;
+	}
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
 		node->kind = ND_LVAR;
@@ -263,6 +269,9 @@ void gen(Node *node) {
 		}
 		case ND_BLOCK:
 			for (Node *n = node->body; n; n = n->next) gen(n);
+			return;
+		case ND_FUNC:
+			printf("    call %s\n", node->funcname);
 			return;
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);

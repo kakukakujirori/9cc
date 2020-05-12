@@ -4,7 +4,7 @@ assert() {
 	input="$2"
 
 	./9cc "$input" > tmp.s
-	cc -o tmp tmp.s
+	cc -o tmp tmp.s func.o # linked function library
 	./tmp
 	actual="$?"
 
@@ -15,6 +15,9 @@ assert() {
 		exit 1
 	fi
 }
+
+assert 0 "foo(); 0;"
+assert 21 "val = 20; foo(); return val + 1;"
 
 assert 14 "n = 0; while (n < 10) {n = n + 1; n = n * 2;} n;"
 assert 1 "val = 1; for (i = 0; i < 10; i = i + 1) {val = val + i; val = val - i;} return val;"
