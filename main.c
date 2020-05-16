@@ -14,6 +14,12 @@ int main(int argc, char** argv) {
 	locals->len = 0;
 	locals->offset = 0;
 
+	// initialize function container
+	functions = (Function*)calloc(1, sizeof(Function));
+	functions->next = NULL;
+	functions->name = NULL;
+	functions->len = 0;
+
 	// initialize go_to_number
 	go_to_number = 0;
 
