@@ -1,5 +1,23 @@
 #include "9cc.h"
 
+LVar *find_lvar(Token *tok) {
+	for (LVar *var = locals; var; var = var->next) {
+		if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+			return var;
+		}
+	}
+	return NULL;
+}
+
+Function *find_func(Token *tok) {
+	for (Function *func = functions; func; func = func->next) {
+		if (func->len == tok->len && !memcmp(tok->str, func->name, func->len)) {
+			return func;
+		}
+	}
+	return NULL;
+}
+
 /* Recursive descent parsing */
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	Node *node = calloc(1, sizeof(Node));
@@ -19,6 +37,42 @@ Node *new_node_num(int val) {
 	node->kind = ND_NUM;
 	node->val = val;
 	node->els = NULL;
+	return node;
+}
+
+Node *new_node_ident(Token *tok) {
+	Node *node = calloc(1, sizeof(Node));
+	node->kind = ND_LVAR;
+
+	// determine the offset of the variable
+	LVar *lvar = find_lvar(tok);
+	if (lvar) {
+		node->offset = lvar->offset;
+	} else {
+		lvar = calloc(1, sizeof(LVar));
+		lvar->next = locals;
+		lvar->name = tok->str;
+		lvar->len = tok->len;
+		lvar->offset = locals->offset + 8;
+		node->offset = lvar->offset;
+		locals = lvar;
+	}
+	return node;
+}
+
+Node *new_node_func(Token *tok) {
+	Node *node = new_node(ND_FUNC, NULL, NULL);
+	Function *func = find_func(tok);
+	if (func) {
+		node->funcname = strndup(tok->str, tok->len);
+	} else {
+		func = calloc(1, sizeof(Function));
+		func->next = functions;
+		func->name = tok->str;
+		func->len = tok->len;
+		node->funcname = strndup(tok->str, tok->len);
+		functions = func;
+	}
 	return node;
 }
 
@@ -178,29 +232,31 @@ Node *primary(void) {
 	} 
 	Token *tok = consume_ident();
 	if (tok && consume("(")) {
-		Node *node = new_node(ND_FUNC, NULL, NULL);
-		node->funcname = strndup(tok->str, tok->len);
-		expect(")");
-		return node;
+		Node *node = new_node_func(tok);
+		if (consume(")")) {
+			return node;
+		} else {
+			// refered to https://github.com/kokosabu/9cc/blob/master/parse.c
+			node->rhs = calloc(1, sizeof(Node));
+			Node *n = node->rhs;
+			while (1) {
+				n->lhs = expr();
+				if (consume(",")) {
+					n->rhs = calloc(1, sizeof(Node));
+					n->rhs->lhs = NULL;
+					n->rhs->rhs = NULL;
+					n = n->rhs;
+				} else {
+					n->rhs = NULL;
+					break;
+				}
+			}
+			expect(")");
+			return node;
+		}
 	}
 	if (tok) {
-		Node *node = calloc(1, sizeof(Node));
-		node->kind = ND_LVAR;
-
-		// determine the offset of the variable
-		LVar *lvar = find_lvar(tok);
-		if (lvar) {
-			node->offset = lvar->offset;
-		} else {
-			lvar = calloc(1, sizeof(LVar));
-			lvar->next = locals;
-			lvar->name = tok->str;
-			lvar->len = tok->len;
-			lvar->offset = locals->offset + 8;
-			node->offset = lvar->offset;
-			locals = lvar;
-		}
-		return node;
+		return new_node_ident(tok);
 	}
 	return new_node_num(expect_number());
 }
@@ -212,6 +268,33 @@ void gen_lval(Node *node) {
 	printf("    mov rax, rbp\n");
 	printf("    sub rax, %d\n", node->offset);
 	printf("    push rax\n");
+}
+
+void gen_args(Node *node, int argnum) {
+	gen(node->lhs);
+	if (node->rhs) gen_args(node->rhs, argnum + 1);
+
+	if (argnum == 1) {
+		printf("    pop rax\n");
+		printf("    mov rdi, rax\n");
+	} else if (argnum == 2) {
+		printf("    pop rax\n");
+		printf("    mov rsi, rax\n");
+	} else if (argnum == 3) {
+		printf("    pop rax\n");
+		printf("    mov rdx, rax\n");
+	} else if (argnum == 4) {
+		printf("    pop rax\n");
+		printf("    mov rcx, rax\n");
+	} else if (argnum == 5) {
+		printf("    pop rax\n");
+		printf("    mov r8, rax\n");
+	} else if (argnum == 6) {
+		printf("    pop rax\n");
+		printf("    mov r9, rax\n");
+	} else {
+		/* arguments over 7 remains in the stack */
+	}
 }
 
 void gen(Node *node) {
@@ -243,7 +326,7 @@ void gen(Node *node) {
 		}
 		case ND_WHILE: {
 			int current_num = go_to_number++;
-			printf(".L.begin.%d:", current_num);
+			printf(".L.begin.%d:\n", current_num);
 			gen(node->cond);
 			printf("    pop rax\n");
 			printf("    cmp rax, 0\n");
@@ -271,7 +354,9 @@ void gen(Node *node) {
 			for (Node *n = node->body; n; n = n->next) gen(n);
 			return;
 		case ND_FUNC:
+			if (node->rhs != NULL) gen_args(node->rhs, 1);
 			printf("    call %s\n", node->funcname);
+			printf("    push rax\n");
 			return;
 	    case ND_NUM:
 		    printf("    push %d\n", node->val);

@@ -85,6 +85,14 @@ struct LVar {
 	int offset;  // offset from RBP
 };
 
+typedef struct Function Function;
+
+struct Function {
+	Function *next;  // next function or NULL
+	char *name;      // name of function
+	int len;         // length of function name
+};
+
 ////////////////////////////////////////////////////////////////
 
 /* prototype declaration */
@@ -99,13 +107,16 @@ void expect(char *op);
 int expect_number(void);
 bool at_eof(void);
 bool startswith(char *p, char *q);
-LVar *find_lvar(Token *tok);
 int is_alnum(char c);
 Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 Token *tokenize(void);
 
+LVar *find_lvar(Token *tok);
+Function *find_func(Token *tok);
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
+Node *new_node_ident(Token *tok);
+Node *new_node_func(Token *tok);
 void *program(void);
 Node *stmt(void);
 Node *expr(void);
@@ -117,6 +128,7 @@ Node *mul(void);
 Node *unary(void);
 Node *primary(void);
 void gen_lval(Node *node);
+void gen_args(Node *node, int argnum);
 void gen(Node *node);
 
 ////////////////////////////////////////////////////////////////
@@ -127,3 +139,4 @@ char *user_input; // input program
 Node *code[100];
 LVar *locals;
 int go_to_number;
+Function *functions;

@@ -16,8 +16,16 @@ assert() {
 	fi
 }
 
-assert 0 "foo(); 0;"
-assert 21 "val = 20; foo(); return val + 1;"
+assert 0 "hi(); return 0;"
+assert 21 "val = 20; hi(); return val + 1;"
+assert 10 "add_print2(3, 7); return 10;"
+assert 10 "num = add_2(3, 7); return num;"
+assert 12 "return add_3(3, 4, 5);"
+assert 10 "return add_4(4, 3, 2, 1);"
+assert 14 "add_5(3, 1, 4, 1, 5);"
+assert 27 "add_6(2,3,4,5,6,7);"
+assert 29 "add_7(2,4,6,8,1,3,5);"
+assert 36 "add_print3(1,2,3); add_print5(4,5,6,7,8); return add_3(1,2,3) + add_5(4,5,6,7,8);"
 
 assert 14 "n = 0; while (n < 10) {n = n + 1; n = n * 2;} n;"
 assert 1 "val = 1; for (i = 0; i < 10; i = i + 1) {val = val + i; val = val - i;} return val;"
