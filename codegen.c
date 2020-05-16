@@ -287,7 +287,7 @@ void gen_args(Node *node, int argnum) {
 		printf("    pop rax\n");
 		printf("    mov rcx, rax\n");
 	} else if (argnum == 5) {
-		printf("    pop ax\n");
+		printf("    pop rax\n");
 		printf("    mov r8, rax\n");
 	} else if (argnum == 6) {
 		printf("    pop rax\n");
