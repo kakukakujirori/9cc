@@ -164,13 +164,13 @@ Token *tokenize(void) {
 		}
 
 		// single letter punctuator
-		if (strchr("+-*/()<>=;{}", *p)) {
+		if (strchr("+-*/()<>=;{},", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}
 
 		// variables
-		if ('a' <= *p && *p <= 'z') {
+		if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z')) {
 			int len = 0;
 			do {
 				len++;
