@@ -161,7 +161,7 @@ Token *tokenize(void) {
 		}
 
 		// variables
-		if ('a' <= *p && *p <= 'z') {
+		if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z')) {
 			int len = 0;
 			do {
 				len++;
